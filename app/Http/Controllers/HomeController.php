@@ -113,7 +113,8 @@ class HomeController extends Controller
         $attr_txt_update = '';
         $attr_txt_delete = '';
 
-        $code_inputs = array();
+        $code_inputs         = array();
+        $code_insert_laravel = array();
 
         $tmp_bandera = false;
 
@@ -132,7 +133,8 @@ class HomeController extends Controller
                 $attr_txt_insert .= $columns[$key]->Field . ', ';
                 $attr_txt_in_cpm .= '%s, ';
 
-                $code_inputs[] = $this->getHtmlInputCode( $columns[$key] );
+                $code_inputs[]         = $this->getHtmlInputCode( $columns[$key] );
+                $code_insert_laravel[] = $this->getHtmlSaveLaravelCode( $request->table, $columns[$key] );
 
             }
 
@@ -160,14 +162,18 @@ class HomeController extends Controller
             
         }
 
+        $html_create_model = $this->getHtmlLaravelCreateModel( $request->table, $id_key_txt );
+
         $data = array(
-            "attr_txt_select" => $attr_txt_select,
-            "id_key_txt"      => $id_key_txt,
-            "attr_txt_update" => $attr_txt_update,
-            "code_inputs"     => $code_inputs,
-            "database"        => $request->database,
-            "attr_txt_delete" => $attr_txt_delete,
-            "attr_txt_insert" => $attr_txt_insert
+            "attr_txt_select"     => $attr_txt_select,
+            "id_key_txt"          => $id_key_txt,
+            "attr_txt_update"     => $attr_txt_update,
+            "code_inputs"         => $code_inputs,
+            "database"            => $request->database,
+            "attr_txt_delete"     => $attr_txt_delete,
+            "attr_txt_insert"     => $attr_txt_insert,
+            "code_insert_laravel" => $code_insert_laravel,
+            "html_create_model"   => $html_create_model
         );
 
         return view('main.showcolumns', $data);
@@ -195,6 +201,57 @@ class HomeController extends Controller
         //$html = str_replace( ">", "&gt;", $html );
 
         return $html;
+    }
+
+    public function getHtmlSaveLaravelCode( $table, $attr )
+    {
+        $html = '';
+
+        $low_field = $attr->Field;
+        $low_field = mb_strtolower( $low_field );
+
+        
+        $html = sprintf( '$obj_%1$s->%2$s = $request->%2$s;', 
+                        $table, $low_field );
+        
+        //$html = str_replace( "<", "&lt;", $html );
+        //$html = str_replace( ">", "&gt;", $html );
+
+        return $html;
+    }
+
+    public function getHtmlLaravelCreateModel( $table, $id_key )
+    {
+        $html = '';
+
+        $html = sprintf('<?php
+
+            namespace App\Models;
+            
+            use Illuminate\Database\Eloquent\Factories\HasFactory;
+            use Illuminate\Database\Eloquent\Model;
+            
+            class Perfil extends Model
+            {
+                use HasFactory;
+            
+                protected $fillable = [
+                    \'matricula\', \'nombres\', \'apellido_paterno\',
+                    \'apellido_materno\', \'status\', \'anio\',
+                    \'fid_user\'
+                ];
+            
+                protected $table = \'%s\';
+            
+                protected $primaryKey = \'%s\';
+            
+                public $timestamps = false;
+            
+            }
+        ', $table, $id_key);
+
+        return $html;
+
     }
 
     /**

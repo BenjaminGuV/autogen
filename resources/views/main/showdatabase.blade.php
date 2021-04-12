@@ -2,21 +2,20 @@
 
 @section('title', 'Page Title')
 
-@section('sidebar')
-    @parent
-
-    <p>This is appended to the master sidebar.</p>
-@endsection
 
 @section('content')
-    <p>This is my body content.</p>
+    <div class="row">
+        <div class="col-md-12">
+            <p>List all database.</p>
+        </div>
+    </div>
 
-    <ul>
+    <div class="row">
         @foreach( $databases as $database )
-            <li>
+            <div class="col-md-4">
                 <a href="{{ url('/database') }}/{{ $database->Database }}">{{ $database->Database }}</a>
-            </li>
+            </div>
         @endforeach
-    </ul>
+    </div>
 
 @endsection

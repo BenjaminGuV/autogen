@@ -15,10 +15,13 @@ use App\Http\Controllers\HomeController;
 |
 */
 
+/*
 Route::get('/', function () {
     return view('welcome');
 });
+*/
 
+Route::get('/', [HomeController::class, 'showDatabase']);
 Route::get('/show', [HomeController::class, 'index']);
 Route::get('/database', [HomeController::class, 'showDatabase']);
 Route::get('/database/{database}', [HomeController::class, 'showTable']);
